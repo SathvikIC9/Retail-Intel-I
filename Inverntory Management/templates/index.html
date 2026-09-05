@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetailInteli - Retail Intelligence Platform</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js for Donut Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-cart-shopping"></i>
+        </div>
+        <div class="brand-text">
+          <h2>RetailInteli</h2>
+          <span>Retail intelligence platform</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <button class="nav-item active" onclick="switchTab('dashboard')">
+          <i class="fa-solid fa-house"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('aisle')">
+          <i class="fa-solid fa-shapes"></i>
+          <span>Aisle Intelligence</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('queue')">
+          <i class="fa-solid fa-users-line"></i>
+          <span>Queue management</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('inventory')">
+          <i class="fa-solid fa-box-open"></i>
+          <span>Inventory & Stock</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('deduct')">
+          <i class="fa-solid fa-cash-register"></i>
+          <span>POS / Deduct Stock</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('staff')">
+          <i class="fa-solid fa-user-gear"></i>
+          <span>Staff Management</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('reports')">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Reports</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('alerts')">
+          <i class="fa-solid fa-bell"></i>
+          <span>Alerts</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('settings')">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status">
+          <span class="status-dot"></span>
+          <div class="status-info">
+            <span class="status-title">System Online</span>
+            <span class="status-sub">All systems running</span>
+          </div>
+        </div>
+
+        <div class="user-profile">
+          <div class="avatar">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="user-info">
+            <span class="user-name">Manager</span>
+            <span class="user-role">Store 01</span>
+          </div>
+        </div>
+
+        <button class="logout-btn">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- HEADER -->
+      <header class="top-header">
+        <div class="header-title">
+          <h1>Dashboard</h1>
+          <p>Overview of your store in real time.</p>
+        </div>
+
+        <div class="header-widgets">
+          <div class="widget-pill">
+            <i class="fa-regular fa-calendar-days text-primary"></i>
+            <span id="live-date">04 September 2026</span>
+          </div>
+          <div class="widget-pill">
+            <i class="fa-regular fa-clock text-muted"></i>
+            <span id="live-time">1:33 AM</span>
+          </div>
+          <div class="widget-pill live-indicator">
+            <span class="pulse-dot"></span>
+            <span>Live</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW: DASHBOARD -->
+      <div id="view-dashboard" class="tab-view active">
+        <!-- TOP METRIC CARDS -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="icon-wrapper icon-blue">
+              <i class="fa-solid fa-users-viewfinder"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Visitors Now</span>
+              <h3 class="metric-value" id="val-visitors">214</h3>
+              <span class="metric-sub">Live count</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="icon-wrapper icon-orange">
+              <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Queue Count</span>
+              <h3 class="metric-value" id="val-queue">8</h3>
+              <span class="metric-sub">Across all counters</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="icon-wrapper icon-green">
+              <i class="fa-solid fa-box"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Low Stock</span>
+              <h3 class="metric-value" id="val-lowstock">12</h3>
+              <span class="metric-sub text-green font-medium">Need restock</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="icon-wrapper icon-purple">
+              <i class="fa-solid fa-user-group"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Active Staff</span>
+              <h3 class="metric-value" id="val-staff">15</h3>
+              <span class="metric-sub">On floor</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN DASHBOARD CONTENT -->
+        <div class="dashboard-grid">
+          <!-- LEFT COLUMN: ALERTS -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2>Alerts</h2>
+              <a href="#" onclick="switchTab('alerts')" class="link-btn">View all alerts <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <div class="alerts-list">
+              <div class="alert-item alert-danger">
+                <div class="alert-icon"><i class="fa-solid fa-exclamation"></i></div>
+                <div class="alert-content">
+                  <h4>High queue at Counter 2</h4>
+                  <p>Estimated wait time: 10 min</p>
+                </div>
+                <button class="alert-action"><i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+
+              <div class="alert-item alert-warning">
+                <div class="alert-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="alert-content">
+                  <h4>Aisle A02 is busy</h4>
+                  <p>High footfall detected</p>
+                </div>
+                <button class="alert-action"><i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+
+              <div class="alert-item alert-success">
+                <div class="alert-icon"><i class="fa-solid fa-cube"></i></div>
+                <div class="alert-content">
+                  <h4 id="alert-stock-title">11 items are low in stock</h4>
+                  <p>Check inventory & stock</p>
+                </div>
+                <button class="alert-action" onclick="switchTab('inventory')"><i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: TOTAL SUMMARY -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2>Total Summary</h2>
+              <select class="dropdown-select">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+              </select>
+            </div>
+
+            <div class="summary-body">
+              <div class="chart-container">
+                <canvas id="summaryDonutChart"></canvas>
+                <div class="chart-center-label">
+                  <span class="total-num" id="donut-total">249</span>
+                  <span class="total-text">Total Activity</span>
+                </div>
+              </div>
+
+              <div class="stats-list">
+                <div class="stat-row">
+                  <div class="stat-label-group">
+                    <div class="stat-badge icon-blue"><i class="fa-solid fa-users-viewfinder"></i></div>
+                    <div>
+                      <div class="stat-name">Visitors Now</div>
+                      <div class="stat-sub">Live count</div>
+                    </div>
+                  </div>
+                  <div class="stat-values">
+                    <span class="stat-num" id="summary-visitors">214</span>
+                    <span class="stat-pct" id="pct-visitors">85.9%</span>
+                  </div>
+                </div>
+
+                <div class="stat-row">
+                  <div class="stat-label-group">
+                    <div class="stat-badge icon-orange"><i class="fa-solid fa-cart-shopping"></i></div>
+                    <div>
+                      <div class="stat-name">Queue Count</div>
+                      <div class="stat-sub">Across all counters</div>
+                    </div>
+                  </div>
+                  <div class="stat-values">
+                    <span class="stat-num" id="summary-queue">8</span>
+                    <span class="stat-pct" id="pct-queue">3.2%</span>
+                  </div>
+                </div>
+
+                <div class="stat-row">
+                  <div class="stat-label-group">
+                    <div class="stat-badge icon-green"><i class="fa-solid fa-box"></i></div>
+                    <div>
+                      <div class="stat-name">Low Stock</div>
+                      <div class="stat-sub">Need restock</div>
+                    </div>
+                  </div>
+                  <div class="stat-values">
+                    <span class="stat-num" id="summary-lowstock">12</span>
+                    <span class="stat-pct" id="pct-lowstock">4.8%</span>
+                  </div>
+                </div>
+
+                <div class="stat-row">
+                  <div class="stat-label-group">
+                    <div class="stat-badge icon-purple"><i class="fa-solid fa-user-group"></i></div>
+                    <div>
+                      <div class="stat-name">Active Staff</div>
+                      <div class="stat-sub">On floor</div>
+                    </div>
+                  </div>
+                  <div class="stat-values">
+                    <span class="stat-num" id="summary-staff">15</span>
+                    <span class="stat-pct" id="pct-staff">6.0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-footer-banner">
+              <div class="banner-icon"><i class="fa-solid fa-chart-simple"></i></div>
+              <p id="summary-banner-text">
+                Total store activity is 249, with 214 visitors, 8 in queue, 12 low stock items and 15 active staff members.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+     
+      <!-- VIEW: INVENTORY & CATEGORY MANAGEMENT -->
+      <div id="view-inventory" class="tab-view active">
+        <!-- CATEGORY CARDS SECTION -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2>Category Restock & Intimation Status</h2>
+          </div>
+          <div class="category-cards-grid" id="category-cards-container">
+            {% for cat in categories %}
+            <div class="category-card {% if cat.needs_attention %}needs-attention{% endif %}">
+              <h3>{{ cat.category }}</h3>
+              <p>Capacity: <strong>{{ cat.capacity_per_item }} {{ cat.unit }}</strong></p>
+              <p>Current Shelf Units: <strong>{{ cat.total_shelf_units }} {{ cat.unit }}</strong></p>
+              <p>Out of Stock: <strong class="text-danger">{{ cat.out_of_stock_count }}</strong></p>
+              <button class="btn btn-reset" onclick="resetCategory('{{ cat.category }}')">
+                <i class="fa-solid fa-arrows-rotate"></i> Reset Category Stock
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- FULL INVENTORY TABLE SECTION -->
+        <div class="panel-card" style="margin-top: 24px;">
+          <div class="panel-header">
+            <h2>Full Shelf Stock Inventory</h2>
+          </div>
+          <div class="table-container">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>PRODUCT ID</th>
+                  <th>NAME</th>
+                  <th>CATEGORY</th>
+                  <th>SHELF STOCK</th>
+                  <th>MAX CAPACITY</th>
+                  <th>STATUS</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body">
+                {% for product in products %}
+                <tr>
+                  <td><strong>{{ product.product_id }}</strong></td>
+                  <td>{{ product.product_name }}</td>
+                  <td>{{ product.category }}</td>
+                  <td><strong>{{ product.shelf_units }}</strong></td>
+                  <td>{{ product.shelf_capacity }}</td>
+                  <td>
+                    <span class="badge {{ product.status_class }}">
+                      {{ product.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-primary" onclick="resetProduct('{{ product.product_id }}')">
+                      Reset
+                    </button>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="7" style="text-align: center;">No product data available in CSV.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: POS DEDUCT STOCK -->
+      <div id="view-deduct" class="tab-view">
+        <div class="panel-card" style="max-width: 500px;">
+          <div class="panel-header"><h2>Deduct Stock (POS Sale)</h2></div>
+          <form id="deduct-form" onsubmit="handleDeductSubmit(event)">
+            <div class="form-group">
+              <label for="deduct-pid">Select Product</label>
+              <select id="deduct-pid" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label for="deduct-qty">Quantity Sold</label>
+              <input type="number" id="deduct-qty" class="form-control" min="1" value="1" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+              <i class="fa-solid fa-minus"></i> Deduct from Shelf Stock
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- OTHER VIEWS -->
+      <div id="view-aisle" class="tab-view"><div class="panel-card"><h2>Aisle Intelligence</h2><p>Heatmap coming soon.</p></div></div>
+      <div id="view-queue" class="tab-view"><div class="panel-card"><h2>Queue Management</h2><p>Counter monitors coming soon.</p></div></div>
+      <div id="view-staff" class="tab-view"><div class="panel-card"><h2>Staff Management</h2><p>Active staff roster coming soon.</p></div></div>
+      <div id="view-reports" class="tab-view"><div class="panel-card"><h2>Reports</h2><p>Data export options coming soon.</p></div></div>
+      <div id="view-alerts" class="tab-view"><div class="panel-card"><h2>Alerts History</h2><p>Log entries coming soon.</p></div></div>
+      <div id="view-settings" class="tab-view"><div class="panel-card"><h2>Settings</h2><p>System configuration coming soon.</p></div></div>
+
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

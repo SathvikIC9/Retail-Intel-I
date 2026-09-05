@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNO Q · Inventory</title>
+<style>
+  /* ── tokens ── */
+  :root {
+    --bg:        #0f1117;
+    --surface:   #181c27;
+    --surface2:  #1e2333;
+    --border:    #2a3047;
+    --text:      #e8eaf2;
+    --muted:     #7880a0;
+    --ok:        #22c77a;
+    --warn:      #f5a623;
+    --danger:    #f0446b;
+    --accent:    #4f7dff;
+    --accent-dim:#1e3178;
+    --radius:    8px;
+    --mono:      'JetBrains Mono', 'Fira Code', monospace;
+    --sans:      'Inter', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 56px 1fr;
+    grid-template-columns: 220px 1fr;
+  }
+
+  /* ── topbar ── */
+  header {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px;
+  }
+  header .logo {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: var(--accent);
+  }
+  header .logo span { color: var(--muted); font-weight: 400; }
+  header .spacer { flex: 1; }
+  #toast {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: none;
+    font-family: var(--mono);
+  }
+  #toast.ok   { background: #0c3326; color: var(--ok);   display:inline; }
+  #toast.err  { background: #2e0a17; color: var(--danger);display:inline; }
+  #toast.info { background: #12194a; color: var(--accent);display:inline; }
+
+  /* ── sidebar ── */
+  nav {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    text-align: left;
+    padding: 9px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--sans);
+    border-left: 3px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  nav button:hover { color: var(--text); }
+  nav button.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  nav .nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+    padding: 16px 20px 4px;
+  }
+
+  /* ── main ── */
+  main {
+    padding: 28px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* panels (views) */
+  .view { display: none; flex-direction: column; gap: 20px; }
+  .view.active { display: flex; }
+
+  /* ── page heading ── */
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge {
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 2px 8px;
+    border-radius: 99px;
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  /* ── stat cards row ── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+  }
+  .stat-card .val {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: var(--mono);
+    line-height: 1.1;
+  }
+  .stat-card .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .val.ok     { color: var(--ok); }
+  .val.warn   { color: var(--warn); }
+  .val.danger { color: var(--danger); }
+
+  /* ── toolbar ── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toolbar input[type=text], .toolbar select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 7px 12px;
+    font-size: 13px;
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .toolbar input[type=text]:focus, .toolbar select:focus {
+    border-color: var(--accent);
+  }
+  .toolbar input[type=text] { width: 220px; }
+
+  /* ── buttons ── */
+  .btn {
+    border: none;
+    border-radius: var(--radius);
+    padding: 7px 16px;
+    font-size: 13px;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-warn   { background: var(--warn);   color: #000; }
+  .btn-ok     { background: var(--ok);     color: #000; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+  /* ── table ── */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 11px;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .mono { font-family: var(--mono); font-size: 12px; }
+
+  /* status pill */
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+  .pill-ok     { background: #0c3326; color: var(--ok);   }
+  .pill-warn   { background: #2e1a00; color: var(--warn); }
+  .pill-danger { background: #2e0a17; color: var(--danger); }
+
+  /* ── modal ── */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 480px;
+    max-width: 95vw;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .modal h2 { font-size: 16px; font-weight: 600; }
+  .modal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .field label { font-size: 11px; color: var(--muted); }
+  .field input, .field select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field.full { grid-column: 1 / -1; }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+
+  /* ── restock alerts ── */
+  .alert-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--warn);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .alert-card.oos { border-left-color: var(--danger); }
+  .alert-card .a-name { font-weight: 600; font-size: 14px; }
+  .alert-card .a-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .alert-card .a-pill { margin-left: auto; }
+
+  /* ── shelf sim panel ── */
+  .sim-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .sim-panel h3 { font-size: 14px; font-weight: 600; }
+  .sim-panel p  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  #sim-output {
+    background: #0a0d15;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #8fa0d0;
+    min-height: 80px;
+    white-space: pre-wrap;
+  }
+  .sim-row { display: flex; gap: 10px; align-items: flex-end; }
+
+  /* ── empty state ── */
+  .empty {
+    text-align: center;
+    padding: 48px 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* ── loading spinner ── */
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ── header ── -->
+<header>
+  <div class="logo">UNO Q <span>/ Inventory</span></div>
+  <div class="spacer"></div>
+  <div id="toast"></div>
+</header>
+
+<!-- ── sidebar ── -->
+<nav>
+  <div class="nav-label">Views</div>
+  <button class="active" data-view="view-products">All Products</button>
+  <button data-view="view-restock">Restock Alerts</button>
+  <div class="nav-label">Tools</div>
+  <button data-view="view-shelf">Shelf Simulator</button>
+  <button data-view="view-add">Add Product</button>
+</nav>
+
+<!-- ── main ── -->
+<main>
+
+  <!-- ─ Products ─ -->
+  <section class="view active" id="view-products">
+    <div class="page-title">
+      Products
+      <span class="badge" id="badge-count">—</span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="val" id="s-total">—</div>
+        <div class="lbl">Total products</div>
+      </div>
+      <div class="stat-card">
+        <div class="val ok" id="s-ok">—</div>
+        <div class="lbl">Stock OK</div>
+      </div>
+      <div class="stat-card">
+        <div class="val warn" id="s-warn">—</div>
+        <div class="lbl">Restock required</div>
+      </div>
+      <div class="stat-card">
+        <div class="val danger" id="s-oos">—</div>
+        <div class="lbl">Out of stock</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="Search by name or ID…">
+      <select id="filter-status">
+        <option value="">All statuses</option>
+        <option value="STOCK_OK">Stock OK</option>
+        <option value="RESTOCK_REQUIRED">Restock Required</option>
+        <option value="OUT_OF_STOCK">Out of Stock</option>
+      </select>
+      <div class="spacer" style="flex:1"></div>
+      <button class="btn btn-secondary" onclick="loadProducts()">↻ Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Shelf</th>
+            <th>Threshold</th>
+            <th>Sold</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="products-tbody">
+          <tr><td colspan="10" class="empty">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─ Restock Alerts ─ -->
+  <section class="view" id="view-restock">
+    <div class="page-title">
+      Restock Alerts
+      <span class="badge" id="badge-alerts">—</span>
+    </div>
+    <div id="restock-list"><div class="empty">Loading…</div></div>
+  </section>
+
+  <!-- ─ Shelf Simulator ─ -->
+  <section class="view" id="view-shelf">
+    <div class="page-title">Shelf Simulator</div>
+
+    <div class="sim-panel">
+      <h3>Auto simulation</h3>
+      <p>
+        Runs <code>fetch_shelf_data()</code> against the current inventory, applies
+        small random drift (±1–2 units) to each product's shelf count, then persists
+        the result — exactly what the real shelf-camera integration will do.
+      </p>
+      <div>
+        <button class="btn btn-primary" onclick="runAutoSim()">Run shelf scan</button>
+      </div>
+    </div>
+
+    <div class="sim-panel">
+      <h3>Manual injection</h3>
+      <p>
+        Enter exact shelf counts as JSON to test specific scenarios.
+        Keys must be existing <code>product_id</code> values.
+      </p>
+      <div class="field">
+        <label>test_data JSON</label>
+        <textarea id="manual-json" rows="4"
+          style="background:var(--surface2);border:1px solid var(--border);
+                 border-radius:var(--radius);color:var(--text);padding:10px;
+                 font-family:var(--mono);font-size:12px;resize:vertical;outline:none;"
+          placeholder='{"P001": 12, "P002": 4, "P003": 0}'></textarea>
+      </div>
+      <div>
+        <button class="btn btn-warn" onclick="runManualSim()">Inject shelf data</button>
+      </div>
+    </div>
+
+    <div class="sim-panel">
+      <h3>Last scan output</h3>
+      <div id="sim-output">— no scan run yet —</div>
+    </div>
+  </section>
+
+  <!-- ─ Add Product ─ -->
+  <section class="view" id="view-add">
+    <div class="page-title">Add Product</div>
+    <div class="sim-panel" style="max-width:560px">
+      <h3>New product</h3>
+      <div class="modal-row">
+        <div class="field">
+          <label>Product ID</label>
+          <input id="np-id" type="text" placeholder="P010">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <input id="np-cat" type="text" placeholder="Dairy">
+        </div>
+        <div class="field full">
+          <label>Product name</label>
+          <input id="np-name" type="text" placeholder="Whole Milk 1L">
+        </div>
+        <div class="field">
+          <label>Price (₹)</label>
+          <input id="np-price" type="number" min="0" step="0.01" placeholder="55">
+        </div>
+        <div class="field">
+          <label>Total stock</label>
+          <input id="np-stock" type="number" min="0" placeholder="100">
+        </div>
+        <div class="field">
+          <label>Restock threshold</label>
+          <input id="np-thresh" type="number" min="0" placeholder="10">
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="addProduct()">Add product</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── Edit Modal ── -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <h2>Edit product <span id="edit-pid" style="color:var(--accent);font-family:var(--mono)"></span></h2>
+    <div class="modal-row">
+      <div class="field full">
+        <label>Product name</label>
+        <input id="edit-name" type="text">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <input id="edit-cat" type="text">
+      </div>
+      <div class="field">
+        <label>Price (₹)</label>
+        <input id="edit-price" type="number" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>Total stock</label>
+        <input id="edit-stock" type="number" min="0">
+      </div>
+      <div class="field">
+        <label>Restock threshold</label>
+        <input id="edit-thresh" type="number" min="0">
+      </div>
+      <div class="field">
+        <label>Units sold</label>
+        <input id="edit-sold" type="number" min="0">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   State
+   ================================================================ */
+let allProducts = [];
+let editingId   = null;
+
+/* ================================================================
+   Nav
+   ================================================================ */
+document.querySelectorAll('nav button[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.view).classList.add('active');
+
+    if (btn.dataset.view === 'view-restock') loadRestock();
+    if (btn.dataset.view === 'view-products') loadProducts();
+  });
+});
+
+/* ================================================================
+   Toast
+   ================================================================ */
+let toastTimer;
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
+}
+
+/* ================================================================
+   API helpers
+   ================================================================ */
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+  return json;
+}
+
+/* ================================================================
+   Products view
+   ================================================================ */
+async function loadProducts() {
+  try {
+    allProducts = await api('/api/products');
+    renderProducts();
+    updateStats();
+  } catch (e) {
+    toast(e.message, 'err');
+  }
+}
+
+function pillForStatus(status) {
+  if (status === 'STOCK_OK')          return `<span class="pill pill-ok">OK</span>`;
+  if (status === 'RESTOCK_REQUIRED')  return `<span class="pill pill-warn">RESTOCK</span>`;
+  if (status === 'OUT_OF_STOCK')      return `<span class="pill pill-danger">OUT</span>`;
+  return `<span class="pill">${status}</span>`;
+}
+
+function renderProducts() {
+  const search = document.getElementById('search').value.toLowerCase();
+  const fStatus = document.getElementById('filter-status').value;
+
+  const filtered = allProducts.filter(p => {
+    const matchText = p.product_name.toLowerCase().includes(search)
+                   || p.product_id.toLowerCase().includes(search);
+    const matchStatus = !fStatus || p.status === fStatus;
+    return matchText && matchStatus;
+  });
+
+  const tbody = document.getElementById('products-tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty">No products found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(p => `
+    <tr>
+      <td class="mono">${p.product_id}</td>
+      <td>${p.product_name}</td>
+      <td>${p.category}</td>
+      <td class="mono">₹${Number(p.price).toFixed(2)}</td>
+      <td class="mono">${p.total_stock}</td>
+      <td class="mono">${p.shelf_units}</td>
+      <td class="mono">${p.restock_threshold}</td>
+      <td class="mono">${p.units_sold}</td>
+      <td>${pillForStatus(p.status)}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="openEdit('${p.product_id}')">Edit</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateStats() {
+  const n = allProducts.length;
+  const ok   = allProducts.filter(p => p.status === 'STOCK_OK').length;
+  const warn = allProducts.filter(p => p.status === 'RESTOCK_REQUIRED').length;
+  const oos  = allProducts.filter(p => p.status === 'OUT_OF_STOCK').length;
+  document.getElementById('badge-count').textContent = n;
+  document.getElementById('s-total').textContent = n;
+  document.getElementById('s-ok').textContent   = ok;
+  document.getElementById('s-warn').textContent  = warn;
+  document.getElementById('s-oos').textContent   = oos;
+}
+
+document.getElementById('search').addEventListener('input', renderProducts);
+document.getElementById('filter-status').addEventListener('change', renderProducts);
+
+/* ================================================================
+   Edit modal
+   ================================================================ */
+function openEdit(pid) {
+  const p = allProducts.find(x => x.product_id === pid);
+  if (!p) return;
+  editingId = pid;
+  document.getElementById('edit-pid').textContent   = pid;
+  document.getElementById('edit-name').value  = p.product_name;
+  document.getElementById('edit-cat').value   = p.category;
+  document.getElementById('edit-price').value = p.price;
+  document.getElementById('edit-stock').value = p.total_stock;
+  document.getElementById('edit-thresh').value= p.restock_threshold;
+  document.getElementById('edit-sold').value  = p.units_sold;
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEdit() {
+  document.getElementById('edit-modal').classList.remove('open');
+  editingId = null;
+}
+
+// close on backdrop click
+document.getElementById('edit-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeEdit();
+});
+
+async function saveEdit() {
+  if (!editingId) return;
+  const updates = {
+    product_name:      document.getElementById('edit-name').value.trim(),
+    category:          document.getElementById('edit-cat').value.trim(),
+    price:             parseFloat(document.getElementById('edit-price').value),
+    total_stock:       parseInt(document.getElementById('edit-stock').value),
+    restock_threshold: parseInt(document.getElementById('edit-thresh').value),
+    units_sold:        parseInt(document.getElementById('edit-sold').value),
+  };
+  try {
+    await api(`/api/products/${editingId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+    toast(`${editingId} saved`, 'ok');
+    closeEdit();
+    loadProducts();
+  } catch (e) {
+    toast(e.message, 'err');
+  }
+}
+
+/* ================================================================
+   Restock alerts
+   ================================================================ */
+async function loadRestock() {
+  const list = document.getElementById('restock-list');
+  const badge = document.getElementById('badge-alerts');
+  list.innerHTML = '<div class="empty"><span class="spinner"></span>Loading…</div>';
+  try {
+    const alerts = await api('/api/restock');
+    badge.textContent = alerts.length;
+    if (!alerts.length) {
+      list.innerHTML = '<div class="empty">No restock alerts — all shelves look good.</div>';
+      return;
+    }
+    list.innerHTML = alerts.map(a => `
+      <div class="alert-card ${a.status === 'OUT_OF_STOCK' ? 'oos' : ''}">
+        <div>
+          <div class="a-name">${a.product_name} <span class="mono" style="color:var(--muted)">${a.product_id}</span></div>
+          <div class="a-meta">Shelf: ${a.shelf_units} unit${a.shelf_units !== 1 ? 's' : ''} — threshold: ${a.threshold}</div>
+        </div>
+        <div class="a-pill">${pillForStatus(a.status)}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    toast(e.message, 'err');
+    list.innerHTML = '<div class="empty">Failed to load alerts.</div>';
+  }
+}
+
+/* ================================================================
+   Shelf simulator
+   ================================================================ */
+async function runAutoSim() {
+  const out = document.getElementById('sim-output');
+  out.textContent = 'Running shelf scan…';
+  try {
+    const data = await api('/api/shelf/simulate', { method: 'POST', body: '{}' });
+    out.textContent = JSON.stringify(data.shelf_reading, null, 2);
+    toast('Shelf scan complete', 'ok');
+    allProducts = data.products;
+    renderProducts();
+    updateStats();
+  } catch (e) {
+    toast(e.message, 'err');
+    out.textContent = `Error: ${e.message}`;
+  }
+}
+
+async function runManualSim() {
+  const raw = document.getElementById('manual-json').value.trim();
+  const out = document.getElementById('sim-output');
+  let test_data;
+  try {
+    test_data = JSON.parse(raw);
+  } catch {
+    toast('Invalid JSON', 'err'); return;
+  }
+  out.textContent = 'Injecting shelf data…';
+  try {
+    const data = await api('/api/shelf/simulate', {
+      method: 'POST',
+      body: JSON.stringify({ test_data }),
+    });
+    out.textContent = JSON.stringify(data.shelf_reading, null, 2);
+    toast('Shelf data injected', 'info');
+    allProducts = data.products;
+    renderProducts();
+    updateStats();
+  } catch (e) {
+    toast(e.message, 'err');
+    out.textContent = `Error: ${e.message}`;
+  }
+}
+
+/* ================================================================
+   Add product
+   ================================================================ */
+async function addProduct() {
+  const product = {
+    product_id:        document.getElementById('np-id').value.trim(),
+    product_name:      document.getElementById('np-name').value.trim(),
+    category:          document.getElementById('np-cat').value.trim(),
+    price:             parseFloat(document.getElementById('np-price').value) || 0,
+    total_stock:       parseInt(document.getElementById('np-stock').value)   || 0,
+    restock_threshold: parseInt(document.getElementById('np-thresh').value)  || 0,
+  };
+  if (!product.product_id || !product.product_name) {
+    toast('ID and name are required', 'err'); return;
+  }
+  try {
+    await api('/api/products', { method: 'POST', body: JSON.stringify(product) });
+    toast(`${product.product_id} added`, 'ok');
+    ['np-id','np-name','np-cat','np-price','np-stock','np-thresh']
+      .forEach(id => document.getElementById(id).value = '');
+    loadProducts();
+  } catch (e) {
+    toast(e.message, 'err');
+  }
+}
+
+/* ================================================================
+   Boot
+   ================================================================ */
+loadProducts();
+</script>
+</body>
+</html>
