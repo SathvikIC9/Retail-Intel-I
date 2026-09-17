@@ -22,16 +22,16 @@ Think of it like this: **the laptop does the "seeing"** (using cameras and AI), 
 
 ##  How the Arduino and Laptop Talk to Each Other
 
-Imagine the laptop and the Arduino board are two friends standing in the same room (connected to the **same Wi-Fi**). Each friend has their own "address" (an **IP address**) — like a phone number, but for devices.
+Imagine the laptop and the Arduino board are two friends standing in the same room (connected to the **same Wi-Fi**). Each friend has their own "address" (an **IP address**) .
 
 - The **laptop** does all the heavy thinking. It watches the camera feeds, runs AI (YOLOv8) to detect people, and figures out things like "how many people are at the door" or "is the queue too long."
-- The **laptop shares this info over the Wi-Fi network** — nobody outside the network can see it, so the data stays safe and private.
+- The **laptop shares this info over the Wi-Fi network**  nobody outside the network can see it, so the data stays safe and private.
 - The **Arduino board** (running a small Python app called App Lab) simply **asks the laptop** for this info every few seconds using the laptop's IP address, and then shows it on its own little screen/dashboard.
 
 So it's basically:
 
 ```
-📷 Cameras → 💻 Laptop (AI thinking) →  Same Wi-Fi →  Arduino Board (shows the result)
+Cameras →  Laptop (AI thinking) →  Same Wi-Fi →  Arduino Board (shows the result)
 ```
 
 No data ever leaves your Wi-Fi network — everything stays local and safe.
@@ -50,7 +50,7 @@ The project has two homes: files for the **laptop (PC)** and files for the **Ard
 ```
  Project Root
 │
-├── Server_Files/              ← 💻 These run on your LAPTOP (the "brains")
+├── Server_Files/              ←  These run on your LAPTOP (the "brains")
 │   │
 │   ├──  Doorway_Footfall/      
 │   │   ├── laptop_doorway_service.py  ← Counts people walking in/out of the door
@@ -158,4 +158,4 @@ Upload everything inside `App_Lab/` to your Arduino App Lab. It will connect to 
 - **Aisle Intelligence**  — Sees which aisles people spend the most time in (like a little heatmap).
 - **App Lab (Arduino)**  — The friendly face of the project. Doesn't do any AI itself — just asks the laptop "what's happening?" and shows it.
 
-That's it! Cameras see → laptop thinks → Arduino shows. Simple as that. 🎉
+That's it! Cameras see → laptop thinks → Arduino shows. Simple as that. 
