@@ -1,4 +1,4 @@
-# 🛒 Smart Retail Intelligence System
+# Smart Retail Intelligence System
 
 A simple project that watches a store using cameras + AI, and shows everything live on a small screen (Arduino App Lab) and a dashboard.
 
@@ -6,7 +6,7 @@ Think of it like this: **the laptop does the "seeing"** (using cameras and AI), 
 
 ---
 
-## 🧰 Built With
+##  Built With
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-Backend-000000?style=for-the-badge&logo=flask&logoColor=white)
@@ -20,7 +20,7 @@ Think of it like this: **the laptop does the "seeing"** (using cameras and AI), 
 
 ---
 
-## 🔌 How the Arduino and Laptop Talk to Each Other
+##  How the Arduino and Laptop Talk to Each Other
 
 Imagine the laptop and the Arduino board are two friends standing in the same room (connected to the **same Wi-Fi**). Each friend has their own "address" (an **IP address**) — like a phone number, but for devices.
 
@@ -31,19 +31,19 @@ Imagine the laptop and the Arduino board are two friends standing in the same ro
 So it's basically:
 
 ```
-📷 Cameras → 💻 Laptop (AI thinking) → 📶 Same Wi-Fi → 📟 Arduino Board (shows the result)
+📷 Cameras → 💻 Laptop (AI thinking) →  Same Wi-Fi →  Arduino Board (shows the result)
 ```
 
 No data ever leaves your Wi-Fi network — everything stays local and safe.
 
-> ⚠️ Before running anything, open `App_Lab/python/main.py` and change this line to match **your laptop's actual IP address**:
+>  Before running anything, open `App_Lab/python/main.py` and change this line to match **your laptop's actual IP address**:
 > ```python
 > LAPTOP_IP = "192.168.1.36"   # <-- change this
 > ```
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 The project has two homes: files for the **laptop (PC)** and files for the **Arduino App Lab**.
 
@@ -125,7 +125,7 @@ The project has two homes: files for the **laptop (PC)** and files for the **Ard
 
 ---
 
-## 🚀 How to Run It
+##  How to Run It
 
 Each folder has its own `requirements.txt` — this is just a shopping list of Python libraries that the program needs. Install it with:
 
@@ -139,9 +139,9 @@ Open **3 separate terminals**, one for each folder, and run:
 
 | Terminal | Folder | File to Run |
 |---|---|---|
-| 1️⃣ | `Server_Files/Aisle_intelligence` | `python aisle_dwell_service.py` |
-| 2️⃣ | `Server_Files/Doorway_Footfall` | `python laptop_doorway_service.py` |
-| 3️⃣ | `Server_Files/Queue_Management` | `python queue_dashboard_app.py` |
+| 1. | `Server_Files/Aisle_intelligence` | `python aisle_dwell_service.py` |
+| 2. | `Server_Files/Doorway_Footfall` | `python laptop_doorway_service.py` |
+| 3. | `Server_Files/Queue_Management` | `python queue_dashboard_app.py` |
 
 Each one keeps running in the background, quietly watching its own camera feed and serving the results over Wi-Fi.
 
@@ -151,11 +151,11 @@ Upload everything inside `App_Lab/` to your Arduino App Lab. It will connect to 
 
 ---
 
-## 🧩 What Each Part Actually Does (in plain words)
+##  What Each Part Actually Does 
 
-- **Doorway Footfall** 🚪 — Counts how many people come in and go out.
-- **Queue Management** 🧍‍♂️🧍‍♀️ — Watches the checkout line and tells you if it's getting too long.
-- **Aisle Intelligence** 🛍️ — Sees which aisles people spend the most time in (like a little heatmap).
-- **App Lab (Arduino)** 📟 — The friendly face of the project. Doesn't do any AI itself — just asks the laptop "what's happening?" and shows it.
+- **Doorway Footfall**  — Counts how many people come in and go out.
+- **Queue Management**  — Watches the checkout line and tells you if it's getting too long.
+- **Aisle Intelligence**  — Sees which aisles people spend the most time in (like a little heatmap).
+- **App Lab (Arduino)**  — The friendly face of the project. Doesn't do any AI itself — just asks the laptop "what's happening?" and shows it.
 
 That's it! Cameras see → laptop thinks → Arduino shows. Simple as that. 🎉
