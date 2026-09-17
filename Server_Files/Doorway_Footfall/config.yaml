@@ -1,0 +1,30 @@
+video:
+  path: people.mp4
+  width: 1280
+  height: 720
+  loop: true
+model:
+  path: yolov8n.pt
+  confidence: 0.45
+  iou: 0.5
+tracking:
+  tracker: bytetrack.yaml
+  max_missing_frames: 15
+  history_length: 30
+portal:
+  polygon:
+  - - 897
+    - 689
+  - - 1279
+    - 423
+  - - 1231
+    - 231
+  - - 768
+    - 689
+identity:
+  match_threshold: 0.78
+  reentry_window_seconds: 3600
+  appearance_history: 5
+database:
+  csv_path: data/people_events.csv
+  identities_path: data/identities.json

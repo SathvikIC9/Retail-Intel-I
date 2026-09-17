@@ -1,0 +1,7 @@
+# csv
+opencv-python
+ultralytics
+flask
+flask-cors
+numpy 
+# yaml
