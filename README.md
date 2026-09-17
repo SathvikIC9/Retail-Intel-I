@@ -38,7 +38,7 @@ No data ever leaves your Wi-Fi network — everything stays local and safe.
 
 >  Before running anything, open `App_Lab/python/main.py` and change this line to match **your laptop's actual IP address**:
 > ```python
-> LAPTOP_IP = "192.168.1.36"   # <-- change this
+> LAPTOP_IP = "192.XX.X.XX"   # <-- change this
 > ```
 
 ---
