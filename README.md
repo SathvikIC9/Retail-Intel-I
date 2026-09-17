@@ -48,26 +48,74 @@ No data ever leaves your Wi-Fi network — everything stays local and safe.
 The project has two homes: files for the **laptop (PC)** and files for the **Arduino App Lab**.
 
 ```
-📦 Project Root
+ Project Root
 │
-├── 📂 Server_Files/              ← 💻 These run on your LAPTOP (the "brains")
+├── Server_Files/              ← 💻 These run on your LAPTOP (the "brains")
 │   │
-│   ├── 📂 Doorway_Footfall/      ← Counts people walking in/out of the door
-│   │   ├── laptop_doorway_service.py
+│   ├──  Doorway_Footfall/      
+│   │   ├── laptop_doorway_service.py  ← Counts people walking in/out of the door
+│   │   ├── caliberate_from_video.py   ← Sets the boundaries
+│   │   ├── configure.json
+│   │   ├── yolov8n.pt
+│   │   ├── people.mp4
 │   │   └── requirements.txt
 │   │
-│   ├── 📂 Queue_Management/      ← Watches the checkout queue and its length
+│   ├──  Queue_Management/      ← Watches the checkout queue and its length
 │   │   ├── queue_dashboard_app.py
+│   │   ├── caliberate_queue_lines.py
+│   │   ├── caliberate_alert_zones.py
+│   │   ├── person_tracker.py
+│   │   ├── queue_tracker.py
+│   │   ├── state_inferrer.py
+│   │   ├── zone_assigner.py
+│   │   ├── alert_lines.json
+│   │   ├── zones.json
+│   │   ├── yolov8n.pt
+│   │   ├── q2.mp4
 │   │   └── requirements.txt
 │   │
-│   └── 📂 Aisle_intelligence/    ← Tracks how long people dwell in each aisle
+│   └──  Aisle_intelligence/    ← Tracks how long people dwell in each aisle
 │       ├── aisle_dwell_service.py
+│       ├── aisle_zones.json
+│       ├── caliberate_aisle.py
+│       ├── caliberate_aisle_zones.py
+│       ├── floor_map_plan.json
+│       ├── generate_heatmap.py
+│       ├── Project 8.mp4
+│       ├── yolov8n.pt
 │       └── requirements.txt
 │
-└── 📂 App_Lab/                   ← 📟 These go to your ARDUINO board (the "face")
-    ├── 📂 python/                ← The dashboard app that talks to the laptop
-    │   └── main.py
-    └── 📂 sketch/                ← The tiny animation shown on the LED matrix
+└──  App_Lab/                   ←  These go to your ARDUINO board (the "face")
+    ├──  python/
+    ├── inventory_manager.py
+    ├── inventory_synced.csv
+    ├── main.py
+    ├── requirements.txt
+    ├── static/
+    │   ├── aisle_analytics.js
+    │   ├── alerts.js
+    │   ├── analytics.js
+    │   ├── app.js
+    │   ├── chartjs/
+    │   │   ├── chart.umd.min.js
+    │   │   └── chartjs-plugin-datalabels.min.js
+    │   ├── fontawsome/
+    │   │   ├── css/
+    │   │   │   └── all.min.css
+    │   │   └── webfonts/
+    │   │       ├── fa-brands-400.woff2
+    │   │       ├── fa-regular-400.woff2
+    │   │       ├── fa-solid-900.woff2
+    │   │       └── fa-v4compatibility.woff2
+    │   └── fonts/
+    │       ├── PlusJakartaSans-Bold.ttf
+    │       ├── PlusJakartaSans-BoldItalic.ttf
+    │       ├── PlusJakartaSans-ExtraBold.ttf
+    │       ├── PlusJakartaSans-ExtraBoldItalic.ttf
+    │       ├── PlusJakartaSans-ExtraLight.ttf
+    │       └── PlusJakartaSans-ExtraLightItalic.ttf
+    └──  sketch/                ← The tiny animation shown on the LED matrix
+        ├──sketch.yaml
         └── sketch.ino
 ```
 
